@@ -6,7 +6,7 @@
 /*   By: jimpa <jimpa@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/05 13:54:19 by lsadikaj          #+#    #+#             */
-/*   Updated: 2025/05/26 16:34:42 by jimpa            ###   ########.fr       */
+/*   Updated: 2025/05/26 18:45:43 by lsadikaj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,14 @@ int	execute_or_node(t_node *node, char ***envp, t_shell *shell)
 // Fonction principale : exécute l'AST complet
 int	execute_ast(t_node *node, char ***envp, t_shell *shell)
 {
+	int	status;
+	
 	if (!node)
 		return (0);
-	return (execute_node_by_type(node, envp, shell));
+	status = execute_node_by_type(node, envp, shell);
+	free_redirections(shell->redirections);
+	shell->redirections = NULL;
+	free_heredocs(shell->heredocs);
+	shell->heredocs = NULL;
+	return (status);
 }

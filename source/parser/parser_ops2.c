@@ -6,7 +6,7 @@
 /*   By: jimpa <jimpa@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/09 15:35:00 by lsadikaj          #+#    #+#             */
-/*   Updated: 2025/05/26 18:51:45 by jimpa            ###   ########.fr       */
+/*   Updated: 2025/05/27 14:39:40 by lsadikaj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,7 @@ t_node	*create_redirect_right(t_token *right_part)
 		return (NULL);
 	}
 	right->cmd = cmd;
+	free_token(right_part);
 	return (right);
 }
 

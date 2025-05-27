@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   tokenizer_utils.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jimpa <jimpa@student.42.fr>                +#+  +:+       +#+        */
+/*   By: lsadikaj <lsadikaj@student.42lausanne.ch>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/26 12:03:50 by lsadikaj          #+#    #+#             */
-/*   Updated: 2025/05/13 22:50:53 by lsadikaj         ###   ########.fr       */
+/*   Updated: 2025/05/27 13:15:16 by lsadikaj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,16 @@ t_token	*new_token(char *value, t_token_type type)
 	token->type = type;
 	token->parts = NULL;
 	token->next = NULL;
+
+	 // Debug spécifique pour les opérateurs
+    if (type == TOKEN_REDIRECT_OUT)
+    {
+        printf("DEBUG SPECIAL: Opérateur '>' créé à l'adresse %p\n", (void*)token);
+        printf("DEBUG SPECIAL: Sa valeur à l'adresse %p\n", (void*)token->value);
+    }
+	// Debug temporaire
+    debug_token_creation(token, "new_token");
+	
 	return (token);
 }
 

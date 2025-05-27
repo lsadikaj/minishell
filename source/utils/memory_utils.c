@@ -3,55 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   memory_utils.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jimpa <jimpa@student.42.fr>                +#+  +:+       +#+        */
+/*   By: lsadikaj <lsadikaj@student.42lausanne.ch>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/27 18:11:42 by lsadikaj          #+#    #+#             */
-/*   Updated: 2025/05/23 13:22:48 by jimpa            ###   ########.fr       */
+/*   Updated: 2025/05/27 13:12:41 by lsadikaj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
-
-// Libère la mémoire de la liste chaînée de tokens
-void	free_tokens(t_token *tokens)
-{
-	t_token	*current;
-	t_token	*next;
-
-	current = tokens;
-	while (current)
-	{
-		next = current->next;
-		if (current->value)
-			free(current->value);
-		/* if (current->parts)
-			free_t_word_part(tokens); */
-		free(current);
-		current = next;
-	}
-}
-
-// Libère la mémoire de l'arbre (AST) de façon récursive
-void	free_ast(t_node *node)
-{
-	int	i;
-
-	if (!node)
-		return ;
-	free_ast(node->left);
-	free_ast(node->right);
-	if (node->cmd)
-	{
-		i = 0;
-		while (node->cmd[i])
-		{
-			free(node->cmd[i]);
-			i++;
-		}
-		free(node->cmd);
-	}
-	free(node);
-}
 
 // Libère la mémoire des redirections
 void	free_redirections(t_redir *redirections)
@@ -148,4 +107,28 @@ t_token	*delete_token(t_token *head, t_token *target)
 		current = current->next;
 	}
 	return (head);
+}
+
+// Fonctions de débogage temporaires - à supprimer après résolution du problème
+static int debug_token_counter = 0;
+static int debug_token_freed = 0;
+
+void debug_token_creation(t_token *token, const char *location)
+{
+    debug_token_counter++;
+    printf("DEBUG: Token #%d créé (%s) - valeur: '%s', type: %d\n", 
+           debug_token_counter, location, token->value, token->type);
+}
+
+void debug_token_destruction(t_token *token, const char *location)
+{
+    debug_token_freed++;
+    printf("DEBUG: Token détruit (%s) - valeur: '%s', compteur libérés: %d\n", 
+           location, token->value ? token->value : "NULL", debug_token_freed);
+}
+
+void debug_show_token_stats(void)
+{
+    printf("DEBUG: Bilan tokens - Créés: %d, Libérés: %d, Différence: %d\n", 
+           debug_token_counter, debug_token_freed, debug_token_counter - debug_token_freed);
 }

@@ -6,7 +6,7 @@
 /*   By: lsadikaj <lsadikaj@student.42lausanne.ch>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/24 17:21:49 by lsadikaj          #+#    #+#             */
-/*   Updated: 2025/05/21 14:19:30 by lsadikaj         ###   ########.fr       */
+/*   Updated: 2025/05/27 15:00:00 by lsadikaj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ int	handle_operator(t_token **tokens, char *input)
 	if (!op)
 		return (0);
 	type = get_operator_type(op);
+	if (type == TOKEN_PIPE)
 	add_token(tokens, op, type);
 	free(op);
 	return (len);

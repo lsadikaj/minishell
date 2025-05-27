@@ -6,7 +6,7 @@
 /*   By: lsadikaj <lsadikaj@student.42lausanne.ch>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/10 15:13:42 by lsadikaj          #+#    #+#             */
-/*   Updated: 2025/05/08 10:59:49 by lsadikaj         ###   ########.fr       */
+/*   Updated: 2025/05/27 13:10:23 by lsadikaj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,26 +75,75 @@ t_shell	*init_shell(char **envp)
 // Libère proprement la structure principale du shell
 void	free_shell(t_shell *shell)
 {
-	int	i;
-
 	if (!shell)
 		return ;
-	if (shell->envp)
+	if (shell->envp && *shell->envp)
 	{
-		i = 0;
-		while (shell->envp[i])
-			free(shell->envp[i++]);
+		free_array(*shell->envp);
 		free(shell->envp);
+		shell->envp = NULL;
 	}
 	if (shell->tokens)
+	{
 		free_tokens(shell->tokens);
+		shell->tokens = NULL;
+	}
 	if (shell->ast)
+	{
 		free_ast(shell->ast);
+		shell->ast = NULL;
+	}
 	if (shell->current_dir)
+	{
 		free(shell->current_dir);
+		shell->current_dir = NULL;
+	}
 	if (shell->heredocs)
+	{
 		free_heredocs(shell->heredocs);
+		shell->heredocs = NULL;
+	}
 	if (shell->redirections)
+	{
 		free_redirections(shell->redirections);
+		shell->redirections = NULL;
+	}
 	free(shell);
+}
+
+
+// Fonction pour nettoyer après chaque commande
+void	cleanup_shell_iteration(t_shell *shell)
+{
+	if (!shell)
+		return ;
+	// Nettoyer les tokens de l'itération précédente
+	if (shell->tokens)
+	{
+		free_tokens(shell->tokens);
+		shell->tokens = NULL;
+	}
+	
+	// Nettoyer l'AST de l'itération précédente
+	if (shell->ast)
+	{
+		free_ast(shell->ast);
+		shell->ast = NULL;
+	}
+	
+	// Nettoyer les redirections de l'itération précédente
+	if (shell->redirections)
+	{
+		free_redirections(shell->redirections);
+		shell->redirections = NULL;
+	}
+	
+	// Nettoyer les heredocs de l'itération précédente
+	if (shell->heredocs)
+	{
+		free_heredocs(shell->heredocs);
+		shell->heredocs = NULL;
+	}
+	shell->tokens = NULL;
+	debug_show_token_stats();
 }

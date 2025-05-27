@@ -6,7 +6,7 @@
 /*   By: jimpa <jimpa@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/28 17:03:25 by lsadikaj          #+#    #+#             */
-/*   Updated: 2025/05/26 18:36:57 by jimpa            ###   ########.fr       */
+/*   Updated: 2025/05/27 14:30:23 by lsadikaj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,7 @@ t_node	*init_redirect_node(t_token *tokens, t_token *right_part,
 {
 	t_node	*node;
 
+	printf("DEBUG REDIRECT: Initialisation nœud de redirection pour type %d\n", type);
 	if (tokens->type == type)
 		return (create_redirect_left_right(tokens, type));
 	node = malloc(sizeof(t_node));
@@ -78,23 +79,33 @@ t_node	*init_redirect_node(t_token *tokens, t_token *right_part,
 		node->left = NULL;
 	else
 		node->left = setup_redirect_left(tokens);
+	printf("DEBUG REDIRECT: Nœud de redirection créé avec succès\n");
 	return (node);
 }
 
 // Crée un nœud opérateur ou redirection à partir d’un token opérateur
 t_node	*create_op_node(t_token *tokens, t_token *op)
 {
-	t_token	*right_part;
-	t_node	*node;
-
+	t_token			*right_part;
+	t_node			*node;
+	t_node			*result;
+	
 	prepare_op_parts(tokens, op, &right_part);
 	if (is_redirection(op->type) && right_part
 		&& right_part->type == TOKEN_WORD)
-		return (init_redirect_node(tokens, right_part, op->type));
+	{
+		result = init_redirect_node(tokens, right_part, op->type);
+		free_token(op);
+		return (result);
+	}
 	node = malloc(sizeof(t_node));
 	if (!node)
+	{
+		free_token(op);
 		return (NULL);
+	}
 	node->type = token_to_node_type(op->type);
 	node->cmd = NULL;
-	return (setup_operator_node(node, tokens, right_part));
+	result = setup_operator_node(node, tokens, right_part);
+	return (result);
 }

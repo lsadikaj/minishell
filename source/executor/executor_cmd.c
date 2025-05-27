@@ -6,7 +6,7 @@
 /*   By: jimpa <jimpa@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/05 14:22:13 by lsadikaj          #+#    #+#             */
-/*   Updated: 2025/05/27 14:38:19 by jimpa            ###   ########.fr       */
+/*   Updated: 2025/05/26 18:49:49 by lsadikaj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ static int	exec_forked(t_node *node, char **envp)
 {
 	pid_t	pid;
 	int		status;
+	int		ret;
 
 	pid = fork();
 	if (pid == -1)
@@ -50,7 +51,10 @@ static int	exec_forked(t_node *node, char **envp)
 		return (1);
 	}
 	else if (pid == 0)
-		exit(exec_external(node->cmd, envp));
+	{
+		ret = exec_external(node->cmd, envp);
+		exit(ret);
+	}
 	waitpid(pid, &status, 0);
 	if (WIFEXITED(status))
 		return (WEXITSTATUS(status));

@@ -139,6 +139,7 @@ char	*ft_path_finder(char *cmd, char ***envp);
 void	free_array(char **array);
 char	**load_env(void);
 char	**ft_array_dup(char **array);
+void	free_token(t_token *token);
 void	free_tokens(t_token *tokens);
 void	free_redirections(t_redir *redirections);
 void	free_heredocs(t_heredoc *heredocs);
@@ -151,8 +152,13 @@ void	save_history(char *cmd);
 void	*ft_realloc(void *ptr, size_t old_size, size_t new_size);
 char	*handle_unclosed_quotes(char *input);
 void	init_loop_vars(t_shell *shell);
-void	handle_ast_execution(t_shell *shell, char *input);
+void	handle_ast_execution(t_shell *shell);
+void	cleanup_shell_iteration(t_shell *shell);
+void	cleanup_partial_expansion(t_shell *shell, t_token *failed_token);
 
+void debug_token_creation(t_token *token, const char *location);
+void debug_token_destruction(t_token *token, const char *location);
+void debug_show_token_stats(void);
 
 
 // tokenizer/

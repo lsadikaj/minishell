@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   executor_combined.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jiparcer <jiparcer@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lsadikaj <lsadikaj@student.42lausanne.ch>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/08 12:28:14 by lsadikaj          #+#    #+#             */
-/*   Updated: 2025/05/22 15:16:58 by jiparcer         ###   ########.fr       */
+/*   Updated: 2025/05/26 18:42:28 by lsadikaj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ static int	fork_and_execute_cmd(t_node *cmd_node, char **envp,
 {
 	pid_t	pid;
 	int		status;
+	int		ret;
 
 	pid = fork();
 	if (pid == -1)
@@ -28,7 +29,12 @@ static int	fork_and_execute_cmd(t_node *cmd_node, char **envp,
 		return (1);
 	}
 	if (pid == 0)
-		exit(execute_cmd_node(cmd_node, &envp, shell));
+	{
+		ret = execute_cmd_node(cmd_node, &envp, shell);
+		free_redirections(shell->redirections);
+		free_heredocs(shell->heredocs);
+		exit(ret);
+	}
 	waitpid(pid, &status, 0);
 	close_redirect_fds(red);
 	restore_std_fds(red);

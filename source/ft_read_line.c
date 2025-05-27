@@ -6,7 +6,7 @@
 /*   By: jimpa <jimpa@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/24 14:42:25 by jiparcer          #+#    #+#             */
-/*   Updated: 2025/05/26 20:46:42 by jimpa            ###   ########.fr       */
+/*   Updated: 2025/05/27 13:17:45 by lsadikaj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ static int	handle_token_syntax(t_shell *shell, char *input)
 	if (!is_valid_syntax(shell->tokens))
 	{
 		free_tokens(shell->tokens);
+		shell->tokens = NULL;
 		shell->exit_status = 2;
 		return (0);
 	}
@@ -42,28 +43,28 @@ static void	handle_redirections(t_shell *shell)
 // Traite l'entrée dans la boucle principale
 static void	process_input(t_shell *shell, char *input)
 {
+	char	*input_copy;
+
 	if (!*input)
 	{
 		free(input);
 		return ;
 	}
 	add_history(input);
-	save_history(input);
-	input = handle_unclosed_quotes(input);
-	if (!input)
+	input_copy = handle_unclosed_quotes(input);
+
+	if (!input_copy)
 		return ;
-	if (ft_strchr(input, '\n'))
-	{
-		add_history(input);
-		save_history(input);
-	}
-	if (handle_token_syntax(shell, input))
+	if (ft_strchr(input_copy, '\n'))
+		add_history(input_copy);
+  //gerer l'history
+	if (handle_token_syntax(shell, input_copy))
 	{
 		handle_redirections(shell);
-		handle_ast_execution(shell, input);
+		handle_ast_execution(shell);
 	}
-	else
-		free(input);
+	free(input_copy);
+	cleanup_shell_iteration(shell);
 }
 
 // Lit et traite les entrées utilisateur dans une boucle
@@ -92,5 +93,5 @@ void	ft_read_line(char **envp)
 		return ;
 	load_history();
 	ft_read_line_loop(shell);
-	//free_shell(shell);
+	free_shell(shell);
 }

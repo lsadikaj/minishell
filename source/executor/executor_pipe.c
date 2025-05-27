@@ -6,7 +6,7 @@
 /*   By: jimpa <jimpa@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/28 16:35:18 by jimpa             #+#    #+#             */
-/*   Updated: 2025/05/24 18:02:51 by jimpa            ###   ########.fr       */
+/*   Updated: 2025/05/27 12:42:28 by lsadikaj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,10 +69,15 @@ int	execute_pipe_node_right(t_node *node,\
 		if (dup2(pipefd[0], STDIN_FILENO) == -1)
 		{
 			perror("minishell: dup2");
+			free_redirections(shell->redirections);
+			free_heredocs(shell->heredocs);
 			exit(1);
 		}
 		close(pipefd[0]);
-		exit(execute_node_by_type(node->right, envp, shell));
+		status = execute_node_by_type(node->right, envp, shell);
+		free_redirections(shell->redirections);
+		free_heredocs(shell->heredocs);
+		exit(status);
 	}
 	close(pipefd[0]);
 	close(pipefd[1]);
@@ -85,9 +90,17 @@ int	execute_pipe_node_right(t_node *node,\
 	return (1);
 }
 
+// Ne libere que si c est une copie filtree, pas l original
+static void	cleanup_filtered_redirections(t_redir *filtered, t_redir *original)
+{
+	if (filtered && filtered != original)
+		free_redirections(filtered);
+}
+
 // Exécute un pipe en filtrant les redirections pour chaque côté
 int	execute_pipe_node(t_node *node, char ***envp, t_shell *shell)
 {
+	int		status;
 	int		pipefd[2];
 	pid_t	pid_left;
 	t_redir	*original_redirections;
@@ -95,8 +108,10 @@ int	execute_pipe_node(t_node *node, char ***envp, t_shell *shell)
 
 	if (pipe(pipefd) == -1)
 		return (perror("minishell: pipe"), -1);
+
 	// Sauvegarder les redirections originales
 	original_redirections = shell->redirections;
+	filtered_redirections = NULL;
 	// Processus gauche (écriture)
 	pid_left = fork();
 	if (pid_left == 0)
@@ -109,12 +124,20 @@ int	execute_pipe_node(t_node *node, char ***envp, t_shell *shell)
 		if (dup2(pipefd[1], STDOUT_FILENO) == -1)
 		{
 			perror("minishell: dup2");
+			cleanup_filtered_redirections(filtered_redirections, original_redirections);
+			free_heredocs(shell->heredocs);
 			exit(EXIT_FAILURE);
 		}
 		close(pipefd[1]);
-		exit(execute_node_by_type(node->left, envp, shell));
+		status = execute_node_by_type(node->left, envp, shell);
+		cleanup_filtered_redirections(filtered_redirections, original_redirections);
+		free_heredocs(shell->heredocs);
+		exit(status);
 	}
 	// Restaurer les redirections originales pour le processus parent
 	shell->redirections = original_redirections;
-	return (execute_pipe_node_right(node, envp, pipefd, pid_left, shell));
+	status = execute_pipe_node_right(node, envp, pipefd, pid_left, shell);
+	cleanup_filtered_redirections(filtered_redirections, original_redirections);
+	
+	return (status);
 }
